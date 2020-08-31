@@ -1,8 +1,8 @@
 name: api
 description: Flarum Restfull Api of Dart
 version: 0.0.1
-author: "flarum-flutter"
-homepage: "https://github.com/flarum-flutter/api"
+author: "fluam"
+homepage: "https://github.com/fluam/api"
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
