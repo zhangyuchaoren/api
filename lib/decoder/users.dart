@@ -1,4 +1,3 @@
-
 import 'base.dart';
 import 'groups.dart';
 
@@ -62,4 +61,7 @@ class UserInfo {
 
   static UserInfo deletedUser = UserInfo(-1, "[deleted]", "[deleted]", "", "",
       0, 0, false, false, "", false, "", false, null, null);
+
+  static UserInfo guestUser = UserInfo(-1, "[GUEST]", "[GUEST]", "", "", -1, -1,
+      false, false, "", false, "", false, null, null);
 }
