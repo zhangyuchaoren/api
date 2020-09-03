@@ -172,8 +172,13 @@ class Api {
         "identification": username,
         "password": password,
       }));
-      return LoginResult.formMap(json.decode(result.data));
-    } catch (_) {
+      var d = result.data;
+      if (d is Map) {
+        return LoginResult.formMap(d);
+      }
+      return LoginResult.formMap(json.decode(d));
+    } catch (e) {
+      print(e);
       return null;
     }
   }
