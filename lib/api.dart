@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:api/decoder/notifications.dart';
 import 'package:dio/dio.dart';
 import 'decoder/discussions.dart';
 import 'decoder/forums.dart';
@@ -11,7 +14,6 @@ class Api {
   static String apiUrl = "";
   static Map<int, TagInfo> _allTags;
   static Tags _tags;
-  static bool _isLogin = false;
 
   static Future<void> init(String url) async {
     apiUrl = url;
@@ -31,10 +33,6 @@ class Api {
     } else {
       return null;
     }
-  }
-
-  static bool isLogin() {
-    return _isLogin;
   }
 
   static String getIndexUrl() {
@@ -127,18 +125,16 @@ class Api {
 
   static Future<UserInfo> getLoggedInUserInfo(LoginResult data) async {
     if (data.userId == -1) {
-      _isLogin = false;
       return null;
     }
     _dio
       ..options.baseUrl = apiUrl
+      ..options.responseType = ResponseType.plain
 
       /// it work!
-      ..options
-          .headers
-          .addAll({"Authorization": "Token ${data.token};userId=${data.userId}"});
+      ..options.headers.addAll(
+          {"Authorization": "Token ${data.token};userId=${data.userId}"});
     var u = await getUserInfoById(data.userId);
-    _isLogin = u != null;
     return u;
   }
 
@@ -148,6 +144,16 @@ class Api {
 
   static Future<UserInfo> getUserInfoById(int id) async {
     return getUserByUrl("users/$id");
+  }
+
+  static Future<NotificationInfoList> getNotification() async {
+    try {
+      return NotificationInfoList.formJson(
+          (await _dio.get("/notifications")).data);
+    } catch (e) {
+      print(e);
+      return null;
+    }
   }
 
   static Future<UserInfo> getUserByUrl(String url) async {
@@ -162,24 +168,19 @@ class Api {
   static Future<LoginResult> login(String username, String password) async {
     var result;
     try {
-      result =  (await _dio.post("/token", data: {
+      result = (await _dio.post("/token", data: {
         "identification": username,
         "password": password,
       }));
+      return LoginResult.formMap(json.decode(result.data));
     } catch (_) {
-      return null;
-    }
-
-    if (result.data is Map) {
-      return LoginResult.formMap(result.data);
-    }else {
       return null;
     }
   }
 
   static bool _isUrl(String text) {
-    return RegExp("(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]")
+    return RegExp(
+            "(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]")
         .hasMatch(text);
   }
-
 }

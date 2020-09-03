@@ -1,3 +1,5 @@
+import 'package:api/decoder/notifications.dart';
+
 import 'decoder/discussions.dart';
 import 'decoder/forums.dart';
 import 'decoder/tags.dart';
@@ -8,6 +10,7 @@ class InitData {
   Tags tags;
   Discussions discussions;
   UserInfo loggedUser;
+  NotificationInfoList notificationInfoList;
 
-  InitData(this.forumInfo, this.tags, this.discussions, this.loggedUser);
+  InitData(this.forumInfo, this.tags, this.discussions,this.notificationInfoList, this.loggedUser);
 }
