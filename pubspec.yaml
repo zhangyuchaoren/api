@@ -1,6 +1,6 @@
 name: api
 description: Flarum Restfull Api of Dart
-version: 0.0.3
+version: 0.0.4
 author: "fluam"
 homepage: "https://github.com/fluam/api"
 
