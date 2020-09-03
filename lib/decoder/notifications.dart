@@ -6,7 +6,8 @@ import 'base.dart';
 class NotificationsInfo {
   int id;
   String contentType;
-  Map content;
+  /// Map or String
+  dynamic content;
   String createdAt;
   bool isRead;
   UserInfo fromUser;
