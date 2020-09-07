@@ -115,6 +115,36 @@ class Api {
     }
   }
 
+  static Future<DiscussionInfo> createDiscussion(
+      List<TagInfo> tags, String title, String post) async {
+    List<Map<String, String>> ts = [];
+    tags.forEach((TagInfo t) {
+      ts.add({"type": "tags", "id": t.id.toString()});
+    });
+
+    var m = {
+      "data": {
+        "type": "discussions",
+        "attributes": {"title": title, "content": post},
+        "relationships": {
+          "tags": {"data": ts}
+        }
+      }
+    };
+
+    try {
+      var r = await _dio.post("/discussions", data: m);
+      if (r.statusCode == 201) {
+        return DiscussionInfo.formJson(r.data);
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
   static Future<Posts> getPostsById(List<int> l) async {
     var url = "/posts?filter[id]=";
     l.forEach((id) {
