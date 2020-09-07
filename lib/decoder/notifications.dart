@@ -6,6 +6,7 @@ import 'base.dart';
 class NotificationsInfo {
   int id;
   String contentType;
+
   /// Map or String
   dynamic content;
   String createdAt;
@@ -50,8 +51,8 @@ class NotificationInfoList {
 
     base.data.list.forEach((d) {
       NotificationsInfo n = NotificationsInfo.formMapAndId(d.attributes, d.id);
-      var u = allUsers[d.relationships["fromUser"]["data"]["id"]];
-      var p = allPosts[d.relationships["subject"]["data"]["id"]];
+      var u = allUsers[int.parse(d.relationships["fromUser"]["data"]["id"])];
+      var p = allPosts[int.parse(d.relationships["subject"]["data"]["id"])];
       n.fromUser = u;
       n.post = p;
       list.add(n);

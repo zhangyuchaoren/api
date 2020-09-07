@@ -123,6 +123,25 @@ class Api {
     return Posts.formJson((await _dio.get(url)).data);
   }
 
+  static Future<bool> setLastReadPostNumber(String postId, int number) async {
+    try {
+      var r = await _dio.patch("/discussions/$postId", data: {
+        "data": {
+          "type": "discussions",
+          "id": postId,
+          "attributes": {"lastReadPostNumber": number}
+        }
+      });
+      if (r.statusCode == 200) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print(e);
+      return false;
+    }
+  }
+
   static Future<UserInfo> getLoggedInUserInfo(LoginResult data) async {
     if (data.userId == -1) {
       return null;
