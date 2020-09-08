@@ -153,6 +153,21 @@ class Api {
     return Posts.formJson((await _dio.get(url)).data);
   }
 
+  static Future<PostInfo> createPost(String discussionId, String post) async {
+    var m = {
+      "data": {
+        "type": "posts",
+        "attributes": {"content": post},
+        "relationships": {
+          "discussion": {
+            "data": {"type": "discussions", "id": discussionId}
+          }
+        }
+      }
+    };
+    return PostInfo.formJson((await _dio.post("/posts", data: m)).data);
+  }
+
   static Future<bool> setLastReadPostNumber(String postId, int number) async {
     try {
       var r = await _dio.patch("/discussions/$postId", data: {

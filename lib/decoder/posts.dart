@@ -43,6 +43,10 @@ class PostInfo {
       this.mentionedBy,
       this.source);
 
+  factory PostInfo.formJson(String data) {
+    return PostInfo.formBaseData(BaseBean.formJson(data).data);
+  }
+
   factory PostInfo.formBaseData(BaseData data) {
     var m = data.attributes;
     var p = PostInfo(
