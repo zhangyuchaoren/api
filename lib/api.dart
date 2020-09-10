@@ -300,8 +300,7 @@ class Api {
   }
 
   static bool _isUrl(String text) {
-    return RegExp(
-            "(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]")
+    return RegExp("https://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]")
         .hasMatch(text);
   }
 }
