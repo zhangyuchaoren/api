@@ -22,6 +22,11 @@ class NotificationsInfo {
     return NotificationsInfo(id, map["contentType"], map["content"],
         map["createdAt"], map["isRead"], null, null, map);
   }
+
+  factory NotificationsInfo.formJson(String data) {
+    var base = BaseBean.formJson(data);
+    return NotificationsInfo.formMapAndId(base.data.attributes, base.data.id);
+  }
 }
 
 class NotificationInfoList {

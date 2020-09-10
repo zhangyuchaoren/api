@@ -84,7 +84,12 @@ class Api {
   }
 
   static Future<DiscussionInfo> getDiscussionByUrl(String url) async {
-    return DiscussionInfo.formJson((await _dio.get(url)).data);
+    try {
+      return DiscussionInfo.formJson((await _dio.get(url)).data);
+    } catch (e) {
+      print(e);
+      return null;
+    }
   }
 
   static Future<Discussions> getDiscussionList(String sortKey,
@@ -211,12 +216,45 @@ class Api {
   }
 
   static Future<NotificationInfoList> getNotification() async {
+    return getNotificationByUrl("/notifications");
+  }
+
+  static Future<NotificationInfoList> getNotificationByUrl(String url) async {
     try {
-      return NotificationInfoList.formJson(
-          (await _dio.get("/notifications")).data);
+      return NotificationInfoList.formJson((await _dio.get(url)).data);
     } catch (e) {
       print(e);
       return null;
+    }
+  }
+
+  static Future<NotificationsInfo> setNotificationIsRead(String id) async {
+    var m = {
+      "data": {
+        "type": "notifications",
+        "id": id,
+        "attributes": {"isRead": true}
+      }
+    };
+    try {
+      return NotificationsInfo.formJson(
+          (await _dio.patch("/notifications/$id", data: m)).data);
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
+  static Future<bool> readAllNotification() async {
+    try {
+      var r = await _dio.post("/notifications/read");
+      if (r.statusCode == 204) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print(e);
+      return false;
     }
   }
 
