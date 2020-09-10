@@ -100,36 +100,6 @@ class DiscussionInfo {
     return DiscussionInfo.formBase(BaseBean.formJson(j));
   }
 
-  factory DiscussionInfo.makeWithId(String id) {
-    return DiscussionInfo(
-        id,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null);
-  }
-
   factory DiscussionInfo.formBase(BaseBean base) {
     Map<int, PostInfo> allPosts = {};
     Map<int, PostInfo> posts = {};

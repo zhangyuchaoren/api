@@ -203,16 +203,12 @@ class Api {
       /// it work!
       ..options.headers.addAll(
           {"Authorization": "Token ${data.token};userId=${data.userId}"});
-    var u = await getUserInfoById(data.userId);
+    var u = await getUserInfoByNameOrId(data.userId.toString());
     return u;
   }
 
-  static Future<UserInfo> getUserInfoByName(String name) async {
-    return getUserByUrl("users/$name");
-  }
-
-  static Future<UserInfo> getUserInfoById(int id) async {
-    return getUserByUrl("users/$id");
+  static Future<UserInfo> getUserInfoByNameOrId(String nameOrId) async {
+    return getUserByUrl("users/$nameOrId");
   }
 
   static Future<NotificationInfoList> getNotification() async {
