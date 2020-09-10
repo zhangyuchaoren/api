@@ -173,6 +173,24 @@ class Api {
     return PostInfo.formJson((await _dio.post("/posts", data: m)).data);
   }
 
+  static Future<PostInfo> likePost(String id, bool isLiked) async {
+    var m = {
+      "data": {
+        "type": "posts",
+        "id": "$id",
+        "attributes": {"isLiked": isLiked}
+      }
+    };
+    try {
+      return PostInfo.formJson((await _dio
+              .patch("https://discuss.flarum.org/api/posts/$id", data: m))
+          .data);
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
   static Future<bool> setLastReadPostNumber(String postId, int number) async {
     try {
       var r = await _dio.patch("/discussions/$postId", data: {
