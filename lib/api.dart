@@ -92,6 +92,17 @@ class Api {
     }
   }
 
+  static Future<DiscussionInfo> getDiscussionWithNearNumber(
+      String id, int number) {
+    try {
+      String url = "/discussions/$id?page[near]=$number";
+      return getDiscussionByUrl(url);
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
   static Future<Discussions> getDiscussionList(String sortKey,
       {String tagSlug}) async {
     String url;
