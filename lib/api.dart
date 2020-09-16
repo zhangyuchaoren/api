@@ -14,20 +14,28 @@ class Api {
   static String apiUrl = "";
   static Map<int, TagInfo> _allTags;
   static Tags _tags;
+  static String logTag = "api";
 
   static Future<void> init(String url) async {
     apiUrl = url;
     _dio = Dio()
       ..options.baseUrl = url
-      ..options.headers = {"user-agent": "flarum-app/1.0.x"};
+      ..options.responseType = ResponseType.plain
+      ..options.headers = {"user-agent": "flarum-app/1.0.x"}
+      ..options.connectTimeout = 10000
+      ..options.sendTimeout = 20000
+      ..options.receiveTimeout = 20000;
+    Logs.addLog(logTag, "init done");
   }
 
   static Future<ForumInfo> checkUrl(String url) async {
     if (_isUrl(url)) {
       try {
-        return ForumInfo.formJson((await Dio().get(url)).data);
+        var info = ForumInfo.formJson((await Dio().get(url)).data);
+        Logs.addLog(logTag, "Mode:checkUrl\nStatus:ok");
+        return info;
       } catch (e) {
-        print(e);
+        Logs.addLog(logTag, "Mode:checkUrl\nError:$e");
         return null;
       }
     } else {
@@ -59,9 +67,10 @@ class Api {
       t.miniTags.forEach((id, tag) {
         _allTags.addAll({tag.id: tag});
       });
+      Logs.addLog(logTag, "Mode:getTags\nStatus:ok");
       return t;
     } catch (e) {
-      print(e);
+      Logs.addLog(logTag, "Mode:getTags\nError:$e");
       return null;
     }
   }
@@ -85,22 +94,19 @@ class Api {
 
   static Future<DiscussionInfo> getDiscussionByUrl(String url) async {
     try {
-      return DiscussionInfo.formJson((await _dio.get(url)).data);
+      var d = DiscussionInfo.formJson((await _dio.get(url)).data);
+      Logs.addLog(logTag, "Mode:getDiscussionById\nStatus:ok");
+      return d;
     } catch (e) {
-      print(e);
+      Logs.addLog(logTag, "Mode:getDiscussionById\nError:$e");
       return null;
     }
   }
 
   static Future<DiscussionInfo> getDiscussionWithNearNumber(
       String id, int number) {
-    try {
-      String url = "/discussions/$id?page[near]=$number";
-      return getDiscussionByUrl(url);
-    } catch (e) {
-      print(e);
-      return null;
-    }
+    String url = "/discussions/$id?page[near]=$number";
+    return getDiscussionByUrl(url);
   }
 
   static Future<Discussions> getDiscussionList(String sortKey,
@@ -124,9 +130,11 @@ class Api {
 
   static Future<Discussions> getDiscussionListByUrl(String url) async {
     try {
-      return Discussions.formJson((await _dio.get(url)).data);
+      var data = Discussions.formJson((await _dio.get(url)).data);
+      Logs.addLog(logTag, "Mode:getDiscussionListByUrl\nStatus:ok");
+      return data;
     } catch (e) {
-      print("Url:$url : $e");
+      Logs.addLog(logTag, "Mode:getDiscussionListByUrl\nError:$e");
       return null;
     }
   }
@@ -151,12 +159,14 @@ class Api {
     try {
       var r = await _dio.post("/discussions", data: m);
       if (r.statusCode == 201) {
+        Logs.addLog(logTag, "Mode:createDiscussion\nStatus:ok");
         return DiscussionInfo.formJson(r.data);
       } else {
+        Logs.addLog(logTag, "Mode:createDiscussion\nStatus:${r.statusCode}");
         return null;
       }
     } catch (e) {
-      print(e);
+      Logs.addLog(logTag, "Mode:createDiscussion\nError:$e");
       return null;
     }
   }
@@ -166,7 +176,14 @@ class Api {
     l.forEach((id) {
       url += "$id,";
     });
-    return Posts.formJson((await _dio.get(url)).data);
+    try {
+      var data = Posts.formJson((await _dio.get(url)).data);
+      Logs.addLog(logTag, "Mode:getPostsById\nStatus:ok");
+      return data;
+    } catch (e) {
+      Logs.addLog(logTag, "Mode:getPostsById\nError:$e");
+      return null;
+    }
   }
 
   static Future<PostInfo> createPost(String discussionId, String post) async {
@@ -181,7 +198,14 @@ class Api {
         }
       }
     };
-    return PostInfo.formJson((await _dio.post("/posts", data: m)).data);
+    try {
+      var data = PostInfo.formJson((await _dio.post("/posts", data: m)).data);
+      Logs.addLog(logTag, "Mode:createPost\nStatus:ok");
+      return data;
+    } catch (e) {
+      Logs.addLog(logTag, "Mode:createPost\nError:$e");
+      return null;
+    }
   }
 
   static Future<PostInfo> likePost(String id, bool isLiked) async {
@@ -193,11 +217,13 @@ class Api {
       }
     };
     try {
-      return PostInfo.formJson((await _dio
+      var data = PostInfo.formJson((await _dio
               .patch("https://discuss.flarum.org/api/posts/$id", data: m))
           .data);
+      Logs.addLog(logTag, "Mode:likePost\nStatus:ok");
+      return data;
     } catch (e) {
-      print(e);
+      Logs.addLog(logTag, "Mode:likePost\nError:$e");
       return null;
     }
   }
@@ -212,11 +238,13 @@ class Api {
         }
       });
       if (r.statusCode == 200) {
+        Logs.addLog(logTag, "Mode:setLastReadPostNumber\nStatus:ok");
         return true;
       }
+      Logs.addLog(logTag, "Mode:setLastReadPostNumber\nStatus:${r.statusCode}");
       return false;
     } catch (e) {
-      print(e);
+      Logs.addLog(logTag, "Mode:setLastReadPostNumber\nError:$e");
       return false;
     }
   }
@@ -226,10 +254,6 @@ class Api {
       return null;
     }
     _dio
-      ..options.baseUrl = apiUrl
-      ..options.responseType = ResponseType.plain
-
-      /// it work!
       ..options.headers.addAll(
           {"Authorization": "Token ${data.token};userId=${data.userId}"});
     var u = await getUserInfoByNameOrId(data.userId.toString());
@@ -246,9 +270,11 @@ class Api {
 
   static Future<NotificationInfoList> getNotificationByUrl(String url) async {
     try {
-      return NotificationInfoList.formJson((await _dio.get(url)).data);
+      var data = NotificationInfoList.formJson((await _dio.get(url)).data);
+      Logs.addLog(logTag, "Mode:getNotificationByUrl\nStatus:ok");
+      return data;
     } catch (e) {
-      print(e);
+      Logs.addLog(logTag, "Mode:getNotificationByUrl\nError:$e");
       return null;
     }
   }
@@ -262,10 +288,12 @@ class Api {
       }
     };
     try {
-      return NotificationsInfo.formJson(
+      var data = NotificationsInfo.formJson(
           (await _dio.patch("/notifications/$id", data: m)).data);
+      Logs.addLog(logTag, "Mode:setNotificationIsRead\nError:ok");
+      return data;
     } catch (e) {
-      print(e);
+      Logs.addLog(logTag, "Mode:setNotificationIsRead\nError:$e");
       return null;
     }
   }
@@ -274,20 +302,24 @@ class Api {
     try {
       var r = await _dio.post("/notifications/read");
       if (r.statusCode == 204) {
+        Logs.addLog(logTag, "Mode:readAllNotification\nStatus:ok");
         return true;
       }
+      Logs.addLog(logTag, "Mode:readAllNotification\nStatus:${r.statusCode}");
       return false;
     } catch (e) {
-      print(e);
+      Logs.addLog(logTag, "Mode:readAllNotification\nError:$e");
       return false;
     }
   }
 
   static Future<UserInfo> getUserByUrl(String url) async {
     try {
-      return UserInfo.formJson((await _dio.get(url)).data);
+      var data = UserInfo.formJson((await _dio.get(url)).data);
+      Logs.addLog(logTag, "Mode:getUserByUrl\nStatus:ok");
+      return data;
     } catch (e) {
-      print(e);
+      Logs.addLog(logTag, "Mode:getUserByUrl\nError:$e");
       return null;
     }
   }
@@ -300,12 +332,22 @@ class Api {
         "password": password,
       }));
       var d = result.data;
+      var data;
       if (d is Map) {
-        return LoginResult.formMap(d);
+        data = LoginResult.formMap(d);
+      } else {
+        data = LoginResult.formMap(json.decode(d));
       }
-      return LoginResult.formMap(json.decode(d));
+
+      if (data != null) {
+        Logs.addLog(logTag, "Mode:login\nStatus:ok");
+        return data;
+      } else {
+        Logs.addLog(logTag, "Mode:login\nError:???");
+        return null;
+      }
     } catch (e) {
-      print(e);
+      Logs.addLog(logTag, "Mode:login\nError:$e");
       return null;
     }
   }
@@ -313,5 +355,30 @@ class Api {
   static bool _isUrl(String text) {
     return RegExp("https://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]")
         .hasMatch(text);
+  }
+}
+
+class Logs {
+  static List<String> _logs = [];
+  static void addLog(String logTag, String log) {
+    log = "[$logTag]-[${DateTime.now().toString()}] : $log";
+    _logs.add(log);
+    print(log);
+  }
+
+  static String getLog(int index) {
+    return _logs[index];
+  }
+
+  static List<String> getAllLog() {
+    return _logs;
+  }
+
+  static List<String> getLastLogs(int count) {
+    if (count >= _logs.length){
+      count = 0;
+    }
+    int len = _logs.length;
+    return _logs.sublist(len - count);
   }
 }

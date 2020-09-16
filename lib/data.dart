@@ -12,5 +12,10 @@ class InitData {
   UserInfo loggedUser;
   NotificationInfoList notificationInfoList;
 
-  InitData(this.forumInfo, this.tags, this.discussions,this.notificationInfoList, this.loggedUser);
+  InitData(this.forumInfo, this.tags, this.discussions,
+      this.notificationInfoList, this.loggedUser);
+
+  bool isLogin() {
+    return loggedUser != null && loggedUser.id != -1;
+  }
 }
